@@ -4,219 +4,518 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Golf Swing Analyzer MVP</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+      * {
+        box-sizing: border-box;
+      }
+      
       body {
         font-family: 'Montserrat', 'Segoe UI', Arial, sans-serif;
-        background: linear-gradient(135deg, #1a2a1d 60%, #2e473b 100%);
+        background: linear-gradient(135deg, #1a2a1d 0%, #2e473b 50%, #1a2a1d 100%);
+        background-attachment: fixed;
         margin: 0;
-        padding: 0;
+        padding: 20px;
         min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
+      
       .container {
-        max-width: 420px;
-        margin: 48px auto;
+        max-width: 500px;
+        width: 100%;
         background: rgba(36, 56, 36, 0.97);
-        border-radius: 18px;
-        box-shadow: 0 4px 32px rgba(0,0,0,0.22);
-        padding: 36px 28px 28px 28px;
+        border-radius: 20px;
+        box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+        padding: 40px 32px;
         display: flex;
         flex-direction: column;
         align-items: center;
+        backdrop-filter: blur(10px);
+        animation: fadeIn 0.5s ease-in;
       }
+      
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
       h1 {
         color: #c6f7d0;
         text-align: center;
-        margin-bottom: 18px;
-        font-size: 2.1rem;
+        margin-bottom: 8px;
+        font-size: 2.2rem;
         font-weight: 700;
         letter-spacing: 1.5px;
         text-shadow: 0 2px 12px #183a1d;
       }
-      .upload-area {
+      
+      .subtitle {
+        color: #b6e388;
+        text-align: center;
+        font-size: 0.9rem;
         margin-bottom: 28px;
+        opacity: 0.9;
+      }
+      
+      .upload-area {
+        margin-bottom: 24px;
         text-align: center;
         width: 100%;
       }
-      .metrics {
-        background: rgba(34, 80, 38, 0.93);
-        border-radius: 10px;
-        padding: 18px 14px;
-        margin-top: 18px;
-        color: #eafbe7;
-        width: 100%;
-        box-shadow: 0 1px 8px rgba(0,0,0,0.10);
+      
+      .drop-zone {
+        border: 2px dashed #c6f7d0;
+        border-radius: 12px;
+        padding: 40px 20px;
+        background: rgba(46, 71, 59, 0.3);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 16px;
+        position: relative;
+        min-height: 160px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
       }
-      label {
-        font-weight: 600;
+      
+      .drop-zone:hover {
+        border-color: #2e7d32;
+        background: rgba(46, 71, 59, 0.5);
+        transform: translateY(-2px);
+      }
+      
+      .drop-zone.dragover {
+        border-color: #388e3c;
+        background: rgba(56, 142, 60, 0.2);
+        transform: scale(1.02);
+      }
+      
+      .drop-zone-icon {
+        font-size: 3rem;
+        margin-bottom: 12px;
+        opacity: 0.7;
+      }
+      
+      .drop-zone-text {
         color: #c6f7d0;
-        font-size: 1.08rem;
+        font-weight: 600;
+        font-size: 1.1rem;
+        margin-bottom: 8px;
       }
+      
+      .drop-zone-hint {
+        color: #b6e388;
+        font-size: 0.85rem;
+        opacity: 0.8;
+      }
+      
       input[type="file"] {
-        margin-top: 14px;
-        background: #2e473b;
-        color: #eafbe7;
-        border: 1px solid #c6f7d0;
-        border-radius: 6px;
-        padding: 8px;
-        font-size: 1rem;
-        width: 100%;
-        box-sizing: border-box;
+        display: none;
       }
+      
+      .file-name {
+        color: #c6f7d0;
+        margin-top: 12px;
+        font-size: 0.95rem;
+        min-height: 24px;
+      }
+      
+      .video-preview {
+        width: 100%;
+        max-height: 240px;
+        border-radius: 10px;
+        margin-top: 16px;
+        display: none;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      }
+      
+      .video-preview.show {
+        display: block;
+        animation: slideDown 0.3s ease-out;
+      }
+      
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
       button {
-        background: linear-gradient(90deg, #388e3c 60%, #1a2a1d 100%);
+        background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%);
         color: #eafbe7;
         border: none;
-        border-radius: 7px;
-        padding: 10px 22px;
+        border-radius: 10px;
+        padding: 14px 32px;
         cursor: pointer;
-        margin-top: 16px;
+        margin-top: 20px;
         font-weight: 600;
-        font-size: 1.08rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-        transition: background 0.2s, box-shadow 0.2s;
+        font-size: 1.1rem;
+        box-shadow: 0 4px 12px rgba(56,142,60,0.25);
+        transition: all 0.3s ease;
+        width: 100%;
+        position: relative;
+        overflow: hidden;
       }
+      
+      button::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+      }
+      
+      button:hover:not(:disabled)::before {
+        width: 300px;
+        height: 300px;
+      }
+      
       button:disabled {
         background: #2e473b;
         color: #b6e388;
         cursor: not-allowed;
-        opacity: 0.7;
+        opacity: 0.6;
+        box-shadow: none;
       }
+      
       button:hover:not(:disabled) {
-        background: #2e7d32;
-        box-shadow: 0 4px 16px rgba(56,142,60,0.18);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(56,142,60,0.35);
       }
+      
+      button:active:not(:disabled) {
+        transform: translateY(0);
+      }
+      
       .status-area {
         background: #1e4423;
         color: #c6f7d0;
-        border-radius: 8px;
-        padding: 12px;
-        margin-top: 18px;
-        font-size: 1.1em;
-        box-shadow: 0 1px 6px rgba(0,0,0,0.12);
+        border-radius: 10px;
+        padding: 16px;
+        margin-top: 20px;
+        font-size: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         text-align: center;
-        min-height: 32px;
-        transition: background 0.3s;
+        min-height: 48px;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
       }
+      
       .status-area.active {
-        background: #388e3c;
+        background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%);
         color: #fff;
-        font-weight: bold;
+        font-weight: 600;
+        box-shadow: 0 4px 16px rgba(56,142,60,0.3);
+      }
+      
+      .status-area.error {
+        background: linear-gradient(135deg, #d32f2f 0%, #c62828 100%);
+        color: #fff;
+      }
+      
+      .loading-spinner {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 0.8s linear infinite;
+        margin-right: 8px;
+      }
+      
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      
+      .metrics {
+        background: rgba(34, 80, 38, 0.93);
+        border-radius: 12px;
+        padding: 24px 20px;
+        margin-top: 24px;
+        color: #eafbe7;
+        width: 100%;
+        box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+        animation: fadeIn 0.5s ease-in;
+      }
+      
+      .metrics h2 {
+        margin-top: 0;
+        margin-bottom: 16px;
+        font-size: 1.3rem;
+        color: #c6f7d0;
+        font-weight: 700;
+        text-align: center;
+        border-bottom: 2px solid rgba(198, 247, 208, 0.2);
+        padding-bottom: 12px;
+      }
+      
+      .metric-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid rgba(198, 247, 208, 0.1);
+        transition: background 0.2s;
+      }
+      
+      .metric-item:last-child {
+        border-bottom: none;
+      }
+      
+      .metric-item:hover {
+        background: rgba(198, 247, 208, 0.05);
+        border-radius: 6px;
+        padding-left: 8px;
+        padding-right: 8px;
+      }
+      
+      .metric-label {
+        font-weight: 600;
+        color: #eafbe7;
+        font-size: 1rem;
+      }
+      
+      .metric-value {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #c6f7d0;
+      }
+      
+      .metric-unit {
+        color: #b6e388;
+        font-size: 0.9rem;
+        font-weight: 400;
+        margin-left: 4px;
+      }
+      
+      @media (max-width: 600px) {
+        .container {
+          padding: 28px 20px;
+          margin: 10px;
+        }
+        
+        h1 {
+          font-size: 1.8rem;
+        }
+        
+        .drop-zone {
+          padding: 30px 16px;
+          min-height: 140px;
+        }
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1>Golf Swing Analyzer</h1>
+      <h1>⛳ Golf Swing Analyzer</h1>
+      <p class="subtitle">Upload your swing video for instant analysis</p>
+      
       <div class="upload-area">
-        <label for="video-upload">Select your golf swing video</label>
+        <div class="drop-zone" id="drop-zone">
+          <div class="drop-zone-icon">📹</div>
+          <div class="drop-zone-text">Drop your video here</div>
+          <div class="drop-zone-hint">or click to browse</div>
+        </div>
         <input id="video-upload" type="file" accept="video/*" />
-        <button id="submit-btn" disabled>Analyze Swing</button>
+        <div class="file-name" id="file-name"></div>
+        <video id="video-preview" class="video-preview" controls></video>
+        <button id="submit-btn" disabled>
+          <span id="button-text">Analyze Swing</span>
+        </button>
       </div>
-      <div class="status-area" id="status-area">Ready to analyze your swing!</div>
+      
+      <div class="status-area" id="status-area">
+        Ready to analyze your swing!
+      </div>
+      
       <div class="metrics" id="metrics-area">
-        <h2 style="margin-top:0;margin-bottom:10px;font-size:1.2rem;color:#c6f7d0;font-weight:600;">Swing Metrics</h2>
-        <p><strong>Ball Speed:</strong> <span id="ball-speed">--</span> <span style="color:#b6e388;">mph</span></p>
-        <p><strong>Launch Angle:</strong> <span id="launch-angle">--</span> <span style="color:#b6e388;">°</span></p>
-        <p><strong>Carry Distance:</strong> <span id="carry-distance">--</span> <span style="color:#b6e388;">yards</span></p>
-        <p><strong>Apex Height:</strong> <span id="apex-height">--</span> <span style="color:#b6e388;">ft</span></p>
-        <p><strong>Hang Time:</strong> <span id="hang-time">--</span> <span style="color:#b6e388;">s</span></p>
+        <h2>Swing Metrics</h2>
+        <div class="metric-item">
+          <span class="metric-label">Ball Speed</span>
+          <span>
+            <span class="metric-value" id="ball-speed">--</span>
+            <span class="metric-unit">mph</span>
+          </span>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Launch Angle</span>
+          <span>
+            <span class="metric-value" id="launch-angle">--</span>
+            <span class="metric-unit">°</span>
+          </span>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Carry Distance</span>
+          <span>
+            <span class="metric-value" id="carry-distance">--</span>
+            <span class="metric-unit">yards</span>
+          </span>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Apex Height</span>
+          <span>
+            <span class="metric-value" id="apex-height">--</span>
+            <span class="metric-unit">ft</span>
+          </span>
+        </div>
+        <div class="metric-item">
+          <span class="metric-label">Hang Time</span>
+          <span>
+            <span class="metric-value" id="hang-time">--</span>
+            <span class="metric-unit">s</span>
+          </span>
+        </div>
       </div>
     </div>
-    <script>
-  var fileInput = document.getElementById('video-upload');
-  var submitBtn = document.getElementById('submit-btn');
-  var statusArea = document.getElementById('status-area');
-      fileInput.addEventListener('change', function() {
-        submitBtn.disabled = !fileInput.files.length;
-        statusArea.textContent = 'Ready to analyze your swing!';
-        statusArea.classList.remove('active');
-      });
-      submitBtn.addEventListener('click', function() {
-        const file = fileInput.files[0];
-        if (!file) return;
-        submitBtn.disabled = true;
-        statusArea.textContent = 'Processing video...';
-        statusArea.classList.add('active');
-        const formData = new FormData();
-        formData.append('file', file);
-        let dots = 0;
-        const interval = setInterval(() => {
-          dots = (dots + 1) % 4;
-          statusArea.textContent = 'Processing video' + '.'.repeat(dots);
-        }, 600);
-        fetch('http://localhost:8000/process-video', {
-          method: 'POST',
-          body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-          clearInterval(interval);
-          const metrics = data.metrics || data;
-          document.getElementById('ball-speed').textContent = metrics.speed ?? '--';
-          document.getElementById('launch-angle').textContent = metrics.angle ?? '--';
-          document.getElementById('carry-distance').textContent = metrics.carry_distance ?? '--';
-          document.getElementById('apex-height').textContent = metrics.apex_height ?? '--';
-          document.getElementById('hang-time').textContent = metrics.hang_time ?? '--';
-          statusArea.textContent = 'Analysis complete!';
-          statusArea.classList.remove('active');
-          submitBtn.disabled = false;
-        })
-        .catch(err => {
-          clearInterval(interval);
-          statusArea.textContent = 'Error: ' + err;
-          statusArea.classList.remove('active');
-          submitBtn.disabled = false;
-        });
-      });
-    </script>
+    
     <script>
       const fileInput = document.getElementById('video-upload');
       const submitBtn = document.getElementById('submit-btn');
       const statusArea = document.getElementById('status-area');
-      fileInput.addEventListener('change', function() {
-        submitBtn.disabled = !fileInput.files.length;
-        statusArea.textContent = 'Ready to analyze your swing!';
-        statusArea.classList.remove('active');
+      const dropZone = document.getElementById('drop-zone');
+      const fileName = document.getElementById('file-name');
+      const videoPreview = document.getElementById('video-preview');
+      const buttonText = document.getElementById('button-text');
+      
+      // Drag and drop functionality
+      dropZone.addEventListener('click', () => fileInput.click());
+      
+      dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.classList.add('dragover');
       });
+      
+      dropZone.addEventListener('dragleave', () => {
+        dropZone.classList.remove('dragover');
+      });
+      
+      dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0 && files[0].type.startsWith('video/')) {
+          fileInput.files = files;
+          handleFileSelect(files[0]);
+        }
+      });
+      
+      fileInput.addEventListener('change', function() {
+        if (this.files.length > 0) {
+          handleFileSelect(this.files[0]);
+        }
+      });
+      
+      function handleFileSelect(file) {
+        fileName.textContent = `📁 ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+        submitBtn.disabled = false;
+        statusArea.textContent = 'Ready to analyze your swing!';
+        statusArea.classList.remove('active', 'error');
+        
+        // Show video preview
+        const url = URL.createObjectURL(file);
+        videoPreview.src = url;
+        videoPreview.classList.add('show');
+        
+        // Update drop zone text
+        dropZone.querySelector('.drop-zone-text').textContent = 'Video selected';
+        dropZone.style.borderColor = '#388e3c';
+      }
+      
       submitBtn.addEventListener('click', function() {
         const file = fileInput.files[0];
         if (!file) return;
+        
         submitBtn.disabled = true;
-        statusArea.textContent = 'Processing video...';
+        buttonText.innerHTML = '<span class="loading-spinner"></span> Processing...';
+        statusArea.innerHTML = '<span class="loading-spinner"></span> Processing video...';
         statusArea.classList.add('active');
+        statusArea.classList.remove('error');
+        
         const formData = new FormData();
         formData.append('file', file);
-        // Simulate real-time updates
+        
         let dots = 0;
         const interval = setInterval(() => {
           dots = (dots + 1) % 4;
-          statusArea.textContent = 'Processing video' + '.'.repeat(dots);
+          statusArea.innerHTML = `<span class="loading-spinner"></span> Processing video${'.'.repeat(dots)}`;
         }, 600);
+        
         fetch('http://localhost:8000/process-video', {
           method: 'POST',
           body: formData
         })
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Server error: ${response.status}`);
+          }
+          return response.json();
+        })
         .then(data => {
           clearInterval(interval);
-          // Display metrics in the UI
           const metrics = data.metrics || data;
-          document.getElementById('ball-speed').textContent = metrics.speed ?? '--';
-          document.getElementById('launch-angle').textContent = metrics.angle ?? '--';
-          document.getElementById('carry-distance').textContent = metrics.carry_distance ?? '--';
-          document.getElementById('apex-height').textContent = metrics.apex_height ?? '--';
-          document.getElementById('hang-time').textContent = metrics.hang_time ?? '--';
-          statusArea.textContent = 'Analysis complete!';
+          
+          // Update metrics with animation
+          updateMetric('ball-speed', metrics.speed ?? '--');
+          updateMetric('launch-angle', metrics.angle ?? '--');
+          updateMetric('carry-distance', metrics.carry_distance ?? '--');
+          updateMetric('apex-height', metrics.apex_height ?? '--');
+          updateMetric('hang-time', metrics.hang_time ?? '--');
+          
+          statusArea.textContent = '✅ Analysis complete!';
           statusArea.classList.remove('active');
+          buttonText.textContent = 'Analyze Swing';
           submitBtn.disabled = false;
+          
+          // Scroll to metrics
+          document.getElementById('metrics-area').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         })
         .catch(err => {
           clearInterval(interval);
-          statusArea.textContent = 'Error: ' + err;
+          statusArea.textContent = `❌ Error: ${err.message || err}`;
           statusArea.classList.remove('active');
+          statusArea.classList.add('error');
+          buttonText.textContent = 'Try Again';
           submitBtn.disabled = false;
         });
       });
+      
+      function updateMetric(id, value) {
+        const element = document.getElementById(id);
+        if (element.textContent !== '--' && value !== '--') {
+          element.style.transform = 'scale(1.2)';
+          element.style.color = '#4caf50';
+          setTimeout(() => {
+            element.style.transform = 'scale(1)';
+            element.style.color = '';
+          }, 300);
+        }
+        element.textContent = value;
+      }
     </script>
   </body>
 </html>
